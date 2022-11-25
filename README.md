@@ -11,3 +11,5 @@ Usage:
 By default torrent writes the downloaded file in the users `Downloads`
 directory. This can be changed with the `-dir` command-line option.
 
+torrent current supports only magnet links (and not, for example,
+torrent files).
