@@ -64,6 +64,6 @@ require (
 	golang.org/x/exp v0.0.0-20220428152302-39d4317da171 // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 )
