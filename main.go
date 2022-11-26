@@ -64,12 +64,12 @@ func main() {
 			}
 			return
 		case <-time.After(time.Second * 3):
-			comp := t.BytesCompleted()
+			done := t.BytesCompleted()
 			miss := t.BytesMissing()
-			log.Printf("%s / %s downloaded (%.2f%%)",
-				humanize.Bytes(uint64(comp)),
-				humanize.Bytes(uint64(comp+miss)),
-				float32(100*comp/(comp+miss)))
+			log.Printf("%s / %s downloaded (%5.2f%%)",
+				humanize.Bytes(uint64(done)),
+				humanize.Bytes(uint64(done+miss)),
+				100*float64(done)/(float64(done+miss)))
 		}
 	}
 }
