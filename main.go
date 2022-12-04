@@ -3,8 +3,11 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
+	"os/signal"
 	"os/user"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/anacrolix/torrent"
@@ -38,8 +41,9 @@ func main() {
 
 	client, err := torrent.NewClient(cfg)
 	if err != nil {
-		glog.Exitf("tottent.NewClient(): %v", err)
+		glog.Exitf("torrent.NewClient(): %v", err)
 	}
+	defer client.Close()
 	t, err := client.AddMagnet(*magnet)
 	if err != nil {
 		glog.Exitf("client.AddMagnet(): %v", err)
@@ -53,6 +57,9 @@ func main() {
 	go func() {
 		doneCh <- client.WaitAll()
 	}()
+
+	terminateReqCh := make(chan os.Signal, 1)
+	signal.Notify(terminateReqCh, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 
 	for {
 		select {
@@ -70,6 +77,11 @@ func main() {
 				humanize.Bytes(uint64(done)),
 				humanize.Bytes(uint64(done+miss)),
 				100*float64(done)/(float64(done+miss)))
+		case <-terminateReqCh:
+			glog.Infof("Closing all clients on termination signal")
+			client.Close()
+			glog.Infof("Terminating")
+			os.Exit(0)
 		}
 	}
 }
