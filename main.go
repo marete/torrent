@@ -61,6 +61,9 @@ func main() {
 	terminateReqCh := make(chan os.Signal, 1)
 	signal.Notify(terminateReqCh, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 
+	ignoredSignalsCh := make(chan os.Signal, 1)
+	signal.Notify(ignoredSignalsCh, syscall.SIGHUP)
+
 	for {
 		select {
 		case status := <-doneCh:
@@ -82,6 +85,8 @@ func main() {
 			client.Close()
 			glog.Infof("Terminating")
 			os.Exit(0)
+		case <-ignoredSignalsCh:
+			continue
 		}
 	}
 }
