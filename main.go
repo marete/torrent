@@ -50,7 +50,18 @@ func main() {
 		glog.Exitf("client.AddMagnet(): %v", err)
 	}
 
-	<-t.GotInfo()
+	terminateReqCh := make(chan os.Signal, 1)
+	signal.Notify(terminateReqCh, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+
+	ignoredSignalsCh := make(chan os.Signal, 1)
+	signal.Notify(ignoredSignalsCh, syscall.SIGHUP)
+
+	select {
+	case <-t.GotInfo():
+	case <-terminateReqCh:
+		client.Close()
+		os.Exit(1)
+	}
 
 	t.DownloadAll()
 
@@ -58,12 +69,6 @@ func main() {
 	go func() {
 		doneCh <- client.WaitAll()
 	}()
-
-	terminateReqCh := make(chan os.Signal, 1)
-	signal.Notify(terminateReqCh, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
-
-	ignoredSignalsCh := make(chan os.Signal, 1)
-	signal.Notify(ignoredSignalsCh, syscall.SIGHUP)
 
 	for {
 		select {
