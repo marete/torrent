@@ -44,6 +44,7 @@ func main() {
 		glog.Exitf("torrent.NewClient(): %v", err)
 	}
 	defer client.Close()
+
 	t, err := client.AddMagnet(*magnet)
 	if err != nil {
 		glog.Exitf("client.AddMagnet(): %v", err)
@@ -71,6 +72,8 @@ func main() {
 				glog.Infof("All torrents downloaded")
 			} else {
 				glog.Infof("Torrent download interrupted")
+				client.Close()
+				os.Exit(1)
 			}
 			return
 		case <-time.After(time.Second * 3):
@@ -84,7 +87,7 @@ func main() {
 			glog.Infof("Closing all clients on termination signal")
 			client.Close()
 			glog.Infof("Terminating")
-			os.Exit(0)
+			os.Exit(1)
 		case <-ignoredSignalsCh:
 			continue
 		}
