@@ -39,7 +39,10 @@ func main() {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.DataDir = *dir
 	cfg.Debug = *debug
-
+	// Let the kernel provide the next free
+	// port, which should allow multiple invocations of this tool to be
+	// run concurrently without the user being forced to specify a port.
+	cfg.ListenPort = 0
 	client, err := torrent.NewClient(cfg)
 	if err != nil {
 		glog.Exitf("torrent.NewClient(): %v", err)
