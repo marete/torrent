@@ -18,8 +18,9 @@ import (
 var (
 	dir = flag.String("dir", filepath.Join(mustGetHomeDir(), "Downloads"),
 		"destination directory for torrent data")
-	debug  = flag.Bool("debug", false, "enable debug logging")
-	magnet = flag.String("magnet", "", "magnet link")
+	debug       = flag.Bool("debug", false, "enable debug logging")
+	magnet      = flag.String("magnet", "", "magnet link")
+	torrentFile = flag.String("file", "", "torrent file")
 )
 
 func mustGetHomeDir() string {
@@ -47,7 +48,11 @@ func main() {
 
 	t, err := client.AddMagnet(*magnet)
 	if err != nil {
-		glog.Exitf("client.AddMagnet(): %v", err)
+		magErr := err
+		t, err = client.AddTorrentFromFile(*torrentFile)
+		if err != nil {
+			glog.Exitf("A valid magnet link OR torrent file must be provided. client.AddMagnet() %v, client.AddTorrentFromFile() %v", magErr, err)
+		}
 	}
 
 	terminateReqCh := make(chan os.Signal, 1)
