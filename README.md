@@ -7,12 +7,13 @@ Usage:
 
     torrent -magnet '<magnet link>'
     torrent -magnet '<magnet link>' -dir <dest_dir>
+    torrent -file   '<path to .torrent file'
     
-By default torrent writes the downloaded file in the users `Downloads`
-directory. This can be changed with the `-dir` command-line option.
+By default `torrent` writes the downloaded file(s) in the user's
+`Downloads` directory. This can be changed with the `-dir`
+command-line option.
 
-torrent current supports only magnet links (and not, for example,
-torrent files).
+`torrent` supports continuing interrupted downloads.
 
 Installation
 
