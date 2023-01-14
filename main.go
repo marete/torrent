@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	"github.com/anacrolix/torrent"
-	humanize "github.com/dustin/go-humanize"
 	"github.com/golang/glog"
 )
 
@@ -30,6 +30,30 @@ func mustGetHomeDir() string {
 	}
 
 	return u.HomeDir
+}
+
+func abs(n int64) int64 {
+	if n >= 0 {
+		return n
+	}
+
+	return -n
+}
+
+func printBytes(n int64) string {
+	switch {
+	case abs(n) < 1e3:
+		return fmt.Sprintf("%d B", n)
+	case abs(n) < 1e6:
+		return fmt.Sprintf("%.3f KB", float64(n)/1e3)
+	case abs(n) < 1e9:
+		return fmt.Sprintf("%.3f MB", float64(n)/1e6)
+	case abs(n) < 1e12:
+		return fmt.Sprintf("%.3f GB", float64(n)/1e9)
+	default:
+		return fmt.Sprintf("%.3f TB", float64(n)/1e12)
+	}
+
 }
 
 func main() {
@@ -93,8 +117,8 @@ func main() {
 			done := t.BytesCompleted()
 			miss := t.BytesMissing()
 			log.Printf("%s / %s downloaded (%5.2f%%)",
-				humanize.Bytes(uint64(done)),
-				humanize.Bytes(uint64(done+miss)),
+				printBytes(done),
+				printBytes(done+miss),
 				100*float64(done)/(float64(done+miss)))
 		case <-terminateReqCh:
 			glog.Infof("Closing all clients on termination signal")

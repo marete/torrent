@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/anacrolix/torrent v1.46.0
-	github.com/dustin/go-humanize v1.0.0
 	github.com/golang/glog v1.0.0
 )
 
@@ -32,6 +31,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.2.0 // indirect
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
