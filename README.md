@@ -33,10 +33,10 @@ command-line option.
 can otherwise be trivially extended to support other features of that
 library. Perhaps the most notable features are:
 
-    * Support for continuing interrupted downloads.
-    * Support for download and upload limits.
-    * Support for both magnet links and torrent files.
-    * Support for multiple instances running on the same machine, downloading different torrents.
+* Support for continuing interrupted downloads.
+* Support for download and upload limits.
+* Support for both magnet links and torrent files.
+* Support for multiple instances running on the same machine, downloading different torrents.
 
 # Installation
 
