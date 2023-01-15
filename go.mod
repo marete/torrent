@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/anacrolix/torrent v1.46.0
 	github.com/golang/glog v1.0.0
+	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 )
 
 require (
@@ -65,5 +66,4 @@ require (
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
-	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 )

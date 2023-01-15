@@ -13,6 +13,7 @@ import (
 
 	"github.com/anacrolix/torrent"
 	"github.com/golang/glog"
+	"golang.org/x/time/rate"
 )
 
 var (
@@ -21,7 +22,17 @@ var (
 	debug       = flag.Bool("debug", false, "enable debug logging")
 	magnet      = flag.String("magnet", "", "magnet link")
 	torrentFile = flag.String("file", "", "torrent file")
+	dLimit      = flag.Float64("download_bandwidth_limit", 0, "limit total download bandwidth to this in Mega Bits/s. If zero or negative, impose no limit.")
+	uLimit      = flag.Float64("upload_bandwidth_limit", 0, "limit total upload bandwidth to this in Mega Bits/s. If zero or negative, impose no limit.")
 )
+
+func limiter(l float64) *rate.Limiter {
+	if l <= 0 {
+		return nil
+	}
+
+	return rate.NewLimiter(rate.Limit((l/8)*1e6), 32<<10)
+}
 
 func mustGetHomeDir() string {
 	u, err := user.Current()
@@ -72,6 +83,16 @@ func main() {
 		glog.Exitf("torrent.NewClient(): %v", err)
 	}
 	defer client.Close()
+
+	// Bandwidth limits
+	dl := limiter(*dLimit)
+	if dl != nil {
+		cfg.DownloadRateLimiter = dl
+	}
+	ul := limiter(*uLimit)
+	if ul != nil {
+		cfg.UploadRateLimiter = ul
+	}
 
 	t, err := client.AddMagnet(*magnet)
 	if err != nil {
