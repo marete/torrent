@@ -31,7 +31,7 @@ func limiter(l float64) *rate.Limiter {
 		return nil
 	}
 
-	return rate.NewLimiter(rate.Limit((l/8)*1e6), 32<<10)
+	return rate.NewLimiter(rate.Limit((l/8)*1e6), 16<<10)
 }
 
 func mustGetHomeDir() string {
