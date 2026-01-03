@@ -1,5 +1,8 @@
 # torrent
 
+[![Static Analysis](https://github.com/marete/torrent/actions/workflows/static.yml/badge.svg)](https://github.com/marete/torrent/actions/workflows/static.yml)
+[![Build and Test](https://github.com/marete/torrent/actions/workflows/tests.yml/badge.svg)](https://github.com/marete/torrent/actions/workflows/tests.yml)
+
 `torrent` is a simple command-line BitTorrent client based on a
 straight-forward usage of the excellent
 [https://github.com/anacrolix/torrent](github.com/anacrolix/torrent)
