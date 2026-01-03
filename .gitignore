@@ -2,3 +2,4 @@
 torrent
 .torrent.db*
 
+coverage.out

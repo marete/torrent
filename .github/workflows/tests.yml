@@ -1,0 +1,47 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  GO_VERSION: "1.24.0"
+
+jobs:
+  tests:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
+    steps:
+      - name: Install git, certificates, and shellcheck
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends git ca-certificates shellcheck
+          git config --global --add safe.directory "*"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint shell scripts
+        run: |
+          echo "=== Running shellcheck on all shell scripts ==="
+          shellcheck --version
+          shellcheck scripts/*.sh
+          echo "shellcheck passed."
+
+      - name: Set up environment
+        run: ./scripts/ci-setup.sh
+
+      - name: Run tests
+        run: |
+          export PATH="/usr/local/go/bin:${HOME}/go/bin:${PATH}"
+          ./scripts/test.sh
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.out
+          retention-days: 7
