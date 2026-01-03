@@ -4,7 +4,6 @@ go 1.24.0
 
 require (
 	github.com/anacrolix/torrent v1.59.1
-	github.com/golang/glog v1.2.5
 	golang.org/x/time v0.14.0
 )
 

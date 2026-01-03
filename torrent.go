@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -13,9 +12,20 @@ import (
 	"time"
 
 	"github.com/anacrolix/torrent"
-	"github.com/golang/glog"
 	"golang.org/x/time/rate"
 )
+
+// logger is for application logging in torrent.go. Configured at INFO level.
+var logger = slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+	Level: slog.LevelInfo,
+}))
+
+// libLogger is for the upstream torrent library. Configured at ERROR level
+// to suppress noisy INFO/WARN messages from the library.
+var libLogger = slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+	AddSource: true,
+	Level:     slog.LevelError,
+}))
 
 var (
 	dir = flag.String("dir", filepath.Join(mustGetHomeDir(), "Downloads"),
@@ -38,7 +48,8 @@ func limiter(l float64) *rate.Limiter {
 func mustGetHomeDir() string {
 	u, err := user.Current()
 	if err != nil {
-		glog.Fatalf("user.Current(): %v", err)
+		logger.Error("failed to get current user", "err", err)
+		os.Exit(1)
 	}
 
 	return u.HomeDir
@@ -70,17 +81,9 @@ func printBytes(n int64) string {
 
 func main() {
 	flag.Parse()
-	defer glog.Flush()
-
-	// Setup custom log/slog logging for us
-	h := &slog.HandlerOptions{
-		AddSource: true,
-		Level:     slog.LevelError,
-	}
-	slogger := slog.New(slog.NewJSONHandler(os.Stderr, h))
 
 	cfg := torrent.NewDefaultClientConfig()
-	cfg.Slogger = slogger
+	cfg.Slogger = libLogger
 	cfg.DataDir = *dir
 	cfg.Debug = *debug
 	// Let the kernel provide the next free
@@ -89,7 +92,8 @@ func main() {
 	cfg.ListenPort = 0
 	client, err := torrent.NewClient(cfg)
 	if err != nil {
-		glog.Exitf("torrent.NewClient(): %v", err)
+		logger.Error("failed to create torrent client", "err", err)
+		os.Exit(1)
 	}
 	defer client.Close()
 
@@ -108,7 +112,10 @@ func main() {
 		magErr := err
 		t, err = client.AddTorrentFromFile(*torrentFile)
 		if err != nil {
-			glog.Exitf("A valid magnet link OR torrent file must be provided. client.AddMagnet() %v, client.AddTorrentFromFile() %v", magErr, err)
+			logger.Error("a valid magnet link or torrent file must be provided",
+				"magnetErr", magErr,
+				"torrentFileErr", err)
+			os.Exit(1)
 		}
 	}
 
@@ -136,9 +143,9 @@ func main() {
 		select {
 		case status := <-doneCh:
 			if status {
-				glog.Infof("All torrents downloaded")
+				logger.Info("all torrents downloaded")
 			} else {
-				glog.Infof("Torrent download interrupted")
+				logger.Info("torrent download interrupted")
 				client.Close()
 				os.Exit(1)
 			}
@@ -146,14 +153,14 @@ func main() {
 		case <-time.After(time.Second * 3):
 			done := t.BytesCompleted()
 			miss := t.BytesMissing()
-			log.Printf("%s / %s downloaded (%5.2f%%)",
-				printBytes(done),
-				printBytes(done+miss),
-				100*float64(done)/(float64(done+miss)))
+			logger.Info("download progress",
+				"completed", printBytes(done),
+				"total", printBytes(done+miss),
+				"percent", fmt.Sprintf("%.2f%%", 100*float64(done)/float64(done+miss)))
 		case <-terminateReqCh:
-			glog.Infof("Closing all clients on termination signal")
+			logger.Info("closing all clients on termination signal")
 			client.Close()
-			glog.Infof("Terminating")
+			logger.Info("terminating")
 			os.Exit(1)
 		case <-ignoredSignalsCh:
 			continue
