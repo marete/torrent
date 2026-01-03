@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"os/user"
@@ -71,7 +72,15 @@ func main() {
 	flag.Parse()
 	defer glog.Flush()
 
+	// Setup custom log/slog logging for us
+	h := &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelError,
+	}
+	slogger := slog.New(slog.NewJSONHandler(os.Stderr, h))
+
 	cfg := torrent.NewDefaultClientConfig()
+	cfg.Slogger = slogger
 	cfg.DataDir = *dir
 	cfg.Debug = *debug
 	// Let the kernel provide the next free
